@@ -16,7 +16,7 @@ def main():
     train_dataloader, val_dataloader = DataLoader(train_data, BATCH_SIZE, shuffle=True, num_workers=WORKERS), \
                                        DataLoader(val_data, BATCH_SIZE, shuffle=True, num_workers=WORKERS)
 
-    model = Simplenet(1, 1).to(DEVICE)
+    model = Simplenet2(1, 1).to(DEVICE)
     optimizer = t.optim.SGD(model.parameters(), lr=LR, momentum=0.9)
     scheduler = ReduceLROnPlateau(optimizer, mode='min', factor=0.1, patience=10, verbose=True, threshold=0.001,
                                   min_lr=0)
@@ -103,11 +103,11 @@ def val(model, data_loader):
 
 
 def test():
-    model = Simplenet(1, 1).to(DEVICE)
+    model = Simplenet2(1, 1).to(DEVICE)
     model.eval()
     load_weights(model, WEIGHTS)
     test_data = Data(TEST_IMG_PATH, "test")
-    test_dataloader = DataLoader(test_data, BATCH_SIZE, shuffle=True, num_workers=WORKERS)
+    test_dataloader = DataLoader(test_data, BATCH_SIZE, shuffle=False, num_workers=WORKERS)
     result = []
     for data in tqdm(test_dataloader):
         (imgs, ids) = data
