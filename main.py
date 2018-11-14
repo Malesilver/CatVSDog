@@ -6,6 +6,7 @@ from tqdm import tqdm
 from data import Data
 from model import *
 import copy
+import torchvision.models as models
 
 
 def main():
@@ -16,9 +17,14 @@ def main():
     train_dataloader, val_dataloader = DataLoader(train_data, BATCH_SIZE, shuffle=True, num_workers=WORKERS), \
                                        DataLoader(val_data, BATCH_SIZE, shuffle=True, num_workers=WORKERS)
 
-    model = Simplenet2(1, 1).to(DEVICE)
+    # model = Simplenet2(1, 1).to(DEVICE)
+    model = models.resnet18(pretrained=True)
+    model.conv1 = nn.Conv2d(1, 64, kernel_size=7, stride=2, padding=3, bias=False)
+    model.fc = nn.Linear(25088, 1)
+    model.to(DEVICE)
+
     optimizer = t.optim.SGD(model.parameters(), lr=LR, momentum=0.9)
-    scheduler = ReduceLROnPlateau(optimizer, mode='min', factor=0.1, patience=10, verbose=True, threshold=0.001,
+    scheduler = ReduceLROnPlateau(optimizer, mode='max', factor=0.1, patience=10, verbose=True, threshold=0.001,
                                   min_lr=0)
     wait = 0  # for early stop
     lowest_val_loss = 1e3
@@ -47,11 +53,13 @@ def main():
 
         print()
 
-        scheduler.step(val_loss)
+        scheduler.step(val_acc)
 
     print("Best val Loss: {:.4f}", lowest_val_loss)
     model_name = "{}/model/000best_val_loss_{:.4f}_model.pt".format(SAVE_PATH, lowest_val_loss)
     t.save(best_model_wts, model_name)
+
+    test(model.load_state_dict(best_model_wts))
 
 
 def train(model, data_loader, optimizer):
@@ -102,8 +110,12 @@ def val(model, data_loader):
     return epoch_loss, acc
 
 
-def test():
-    model = Simplenet2(1, 1).to(DEVICE)
+def test(model):
+    # model = Simplenet2(1, 1).to(DEVICE)
+    # model = models.resnet18(pretrained=False)
+    # model.conv1 = nn.Conv2d(1, 64, kernel_size=7, stride=2, padding=3, bias=False)
+    # model.fc = nn.Linear(25088, 1)
+    # model.to(DEVICE)
     model.eval()
     load_weights(model, WEIGHTS)
     test_data = Data(TEST_IMG_PATH, "test")
@@ -118,7 +130,9 @@ def test():
         result += batch_result
     write_csv(result, TEST_SAVE_PATH)
 
+    print("Test OK!")
+
 
 if __name__ == '__main__':
-    # main()
-    test()
+    main()
+    # test()
