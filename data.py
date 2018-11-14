@@ -7,13 +7,23 @@ from config import *
 import random
 random.seed(128)
 
+
+def get_name(file_name):
+    return int(file_name.split("/")[-1].split(".")[0])
+
+
 class Data(data.Dataset):
 
     def __init__(self, data_path, mode):
-        img_paths = sorted(glob.glob(os.path.join(data_path, '*.jpg')))
+
         if mode == "train" or mode == "val":
+            img_paths = sorted(glob.glob(os.path.join(data_path, '*.jpg')))
             random.shuffle(img_paths)
+        else:
+            img_paths = sorted(glob.glob(os.path.join(data_path, '*.jpg')), key=get_name)
+
         split = int(len(img_paths)*0.75)
+
         if mode == "train":
             self.img_paths = img_paths[:split]
         elif mode == "val":

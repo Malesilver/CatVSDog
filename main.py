@@ -9,6 +9,9 @@ import copy
 import torchvision.models as models
 
 
+
+
+
 def main():
     make_new_dir()
     tl.configure(logdir=SAVE_PATH + '/log', flush_secs=3)
@@ -111,11 +114,12 @@ def val(model, data_loader):
 
 
 def test(model):
+    BATCH_SIZE = 20
     # model = Simplenet2(1, 1).to(DEVICE)
-    # model = models.resnet18(pretrained=False)
-    # model.conv1 = nn.Conv2d(1, 64, kernel_size=7, stride=2, padding=3, bias=False)
-    # model.fc = nn.Linear(25088, 1)
-    # model.to(DEVICE)
+    model = models.resnet18(pretrained=False)
+    model.conv1 = nn.Conv2d(1, 64, kernel_size=7, stride=2, padding=3, bias=False)
+    model.fc = nn.Linear(25088, 1)
+    model.to(DEVICE)
     model.eval()
     load_weights(model, WEIGHTS)
     test_data = Data(TEST_IMG_PATH, "test")
@@ -134,5 +138,5 @@ def test(model):
 
 
 if __name__ == '__main__':
-    main()
-    # test()
+    # main()
+    test(None)
