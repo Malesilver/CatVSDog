@@ -24,9 +24,12 @@ class Data(data.Dataset):
         if mode == "train" or mode == "val":
             self.labels = [path.split("/")[-1].split(".")[0] for path in self.img_paths]
             self.labels = [int(label == "cat") for label in self.labels]
-            transforms = [T.Grayscale(), T.Resize((RE_HEIGHT, RE_WIDTH)), T.RandomHorizontalFlip(), T.ToTensor()]
         else:
             self.img_ids = [path.split("/")[-1].split(".")[0] for path in self.img_paths]
+
+        if mode == "train":
+            transforms = [T.Grayscale(), T.Resize((RE_HEIGHT, RE_WIDTH)), T.RandomHorizontalFlip(), T.ToTensor()]
+        else: # "val" and "test"
             transforms = [T.Grayscale(), T.Resize((RE_HEIGHT, RE_WIDTH)), T.ToTensor()]
 
         self.transforms = T.Compose(transforms)

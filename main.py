@@ -47,7 +47,7 @@ def main():
             wait = 0
         else:
             wait += 1
-        if wait > 20:
+        if wait > 8:
             print("Stop at epoch {}".format(epoch))
             break
 
